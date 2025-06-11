@@ -23,3 +23,6 @@ Route::get('/customer/registered/{domain}', [TenantController::class, 'registere
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
+
+
+Route::resource('posts', App\Http\Controllers\PostController::class)->only('index', 'store');

@@ -1,0 +1,19 @@
+created:
+    - app/Http/Controllers/PostController.php
+    - database/factories/PostFactory.php
+    - database/migrations/2025_06_09_204106_create_posts_table.php
+    - app/Models/Post.php
+    - tests/Feature/Http/Controllers/PostControllerTest.php
+    - app/Events/NewPost.php
+    - app/Http/Requests/PostStoreRequest.php
+    - app/Jobs/SyncMedia.php
+    - app/Notification/ReviewNotification.php
+    - resources/views/post/index.blade.php
+updated:
+    - routes/web.php
+models:
+    Plan: { name: string, slug: string, description: 'text nullable', price: decimal, trial_days: "integer default:'0'", features: 'text nullable', is_active: "boolean default:'1'" }
+    Tenant: { id: string, data: 'text nullable' }
+    TenantDetail: { tenant_id: string, domain_id: integer, plan_id: 'integer nullable', company_name: string, ruc: string, email: string, phone: 'string nullable', address: 'string nullable', legal_representative: 'string nullable' }
+    User: { name: string, email: string, email_verified_at: 'datetime nullable', password: string, remember_token: 'string nullable' }
+    Post: { title: 'string:400', content: longtext, published_at: 'nullable timestamp' }
