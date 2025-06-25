@@ -19,7 +19,7 @@ class TenantController extends Controller
     public function showRegistrationForm(): Response
     {
         $plans = Plan::all();
-        return Inertia::render('app/customer/tenant/register', [
+        return Inertia::render('customer/tenant/register', [
             'plans' => $plans,
         ]);
     }
@@ -72,7 +72,7 @@ class TenantController extends Controller
         // Redirigir automáticamente después de 3 segundos
         $redirectUrl = "https://{$domain}.anahisoft.test/onboarding";
         
-        return Inertia::render('app/customer/tenant/registered', [
+        return Inertia::render('customer/tenant/registered', [
             'domain' => $domain,
             'redirectUrl' => $redirectUrl,
             'email' => session('email'),

@@ -17,10 +17,16 @@ class CreateTenantsTable extends Migration
     {
         Schema::create('tenants', function (Blueprint $table) {
             $table->string('id')->primary();
-
+            
+            $table->json('data')->nullable();
+            // Campos para suscripción
+            $table->foreignId('subscription_plan_id')->nullable()->constrained('subscription_plans')->nullOnDelete();
+            $table->timestamp('trial_ends_at')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->boolean('subscription_active')->default(false);
+            $table->timestamp('subscription_ends_at')->nullable();
 
             $table->timestamps();
-            $table->json('data')->nullable();
         });
     }
 

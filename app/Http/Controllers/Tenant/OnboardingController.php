@@ -19,7 +19,7 @@ class OnboardingController extends Controller
 
         $email = session('email') ?? request()->query('email');
         
-        return Inertia::render('app/customer/tenant/onboarding', [
+        return Inertia::render('customer/tenant/onboarding', [
             'initialEmail' => $email,
         ]);
     }

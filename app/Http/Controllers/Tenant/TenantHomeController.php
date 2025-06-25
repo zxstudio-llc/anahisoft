@@ -14,6 +14,6 @@ class TenantHomeController extends Controller
             return redirect()->route('tenant.dashboard');
         }
 
-        return redirect()->route('tenant.login'); 
+        return redirect()->route('login'); 
     }
 }

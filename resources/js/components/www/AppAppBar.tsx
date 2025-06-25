@@ -86,7 +86,7 @@ export default function AppAppBar() {
                             color="primary"
                             variant="text"
                             size="small"
-                            // onClick={() => router.visit('/login')}
+                            // onClick={() => router.visit('login')}
                         >
                             Sign in
                         </Button>
@@ -94,7 +94,7 @@ export default function AppAppBar() {
                             color="primary"
                             variant="contained"
                             size="small"
-                            // onClick={() => router.visit('register.customer')}
+                            onClick={() => router.visit('register')}
                         >
                             Sign up
                         </Button>

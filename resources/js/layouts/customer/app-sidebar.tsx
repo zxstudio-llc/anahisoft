@@ -6,6 +6,7 @@ import {
   BarChartIcon,
   CameraIcon,
   ClipboardListIcon,
+  Cog,
   DatabaseIcon,
   FileCodeIcon,
   FileIcon,
@@ -14,7 +15,10 @@ import {
   HelpCircleIcon,
   LayoutDashboardIcon,
   ListIcon,
+  Package,
   SearchIcon,
+  ShoppingCart,
+  Users,
   SettingsIcon,
   UsersIcon,
 } from "lucide-react"
@@ -64,6 +68,26 @@ const data = {
       title: "Team",
       url: "#",
       icon: UsersIcon,
+    },
+    {
+      title: 'Clientes',
+      href: '/clients',
+      icon: Users,
+    },
+    {
+      title: 'Productos',
+      href: '/products',
+      icon: Package,
+    },
+    {
+      title: 'Ventas',
+      href: '/sales',
+      icon: ShoppingCart,
+    },
+    {
+      title: 'Configuración',
+      href: '/settings/profile',
+      icon: Cog,
     },
   ],
   navClouds: [

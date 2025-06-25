@@ -27,28 +27,47 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
-                    <Link className="block w-full" href={route('profile.edit')} as="button" prefetch onClick={cleanup}>
-                        <Settings className="mr-2" />
-                        Settings
+                    <Link
+                    href={route('profile.edit')}
+                    as="button"
+                    onClick={cleanup}
+                    prefetch
+                    className="block w-full bg-background text-foreground hover:bg-sidebar-accent hover:text-background focus:bg-sidebar-accent focus:text-background dark:text-white dark:focus:text-foreground data-[highlighted]:bg-sidebar-accent data-[highlighted]:text-background"
+
+                    >
+                    <Settings className="mr-2 text-inherit" />
+                    Settings
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                    <UserCircleIcon />
+
+                <DropdownMenuItem
+                    className="bg-background text-foreground hover:bg-sidebar-accent hover:text-background focus:bg-sidebar-accent focus:text-background dark:text-white dark:focus:text-foreground data-[highlighted]:bg-sidebar-accent data-[highlighted]:text-background"
+                >
+                    <UserCircleIcon className="mr-2 text-inherit" />
                     Account
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                    <CreditCardIcon />
+
+                <DropdownMenuItem
+                    className="bg-background text-foreground hover:bg-sidebar-accent hover:text-background focus:bg-sidebar-accent focus:text-background dark:text-white dark:focus:text-foreground data-[highlighted]:bg-sidebar-accent data-[highlighted]:text-background"
+                >
+                    <CreditCardIcon className="mr-2 text-inherit" />
                     Billing
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                    <BellIcon />
+
+                <DropdownMenuItem
+                    className="bg-background text-foreground hover:bg-sidebar-accent hover:text-background focus:bg-sidebar-accent focus:text-background dark:text-white dark:focus:text-foreground data-[highlighted]:bg-sidebar-accent data-[highlighted]:text-background"
+                >
+                    <BellIcon className="mr-2 text-inherit" />
                     Notifications
                 </DropdownMenuItem>
-            </DropdownMenuGroup>
+                </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-                <Link className="block w-full" method="post" href={route('logout')} as="button" onClick={handleLogout}>
-                    <LogOut className="mr-2" />
+                <Link 
+                    className="block w-full bg-background text-foreground hover:bg-sidebar-accent hover:text-background focus:bg-sidebar-accent focus:text-background dark:text-white dark:focus:text-foreground data-[highlighted]:bg-sidebar-accent data-[highlighted]:text-background"
+                    method="post" href={route('logout')} as="button" onClick={handleLogout}
+                >
+                    <LogOut className="mr-2 text-inherit" />
                     Log out
                 </Link>
             </DropdownMenuItem>

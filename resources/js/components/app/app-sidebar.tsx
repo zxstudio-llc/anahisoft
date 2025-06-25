@@ -1,34 +1,23 @@
 import { NavFooter } from '@/components/app/nav-footer';
 import { NavMain } from '@/components/app/nav-main';
 import { NavUser } from '@/components/app/nav-user';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { type SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
+
+import { centralNavItems, footerNavItems, tenantNavItems } from '@/lib/navigation';
 import AppLogo from './app-logo';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutGrid,
-    },
-];
+export function AppSidebar({ isTenant }: { isTenant: boolean }) {
+    const page = usePage<SharedData>();
+    const { auth } = page.props;
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
-];
+    const navItems = isTenant ? tenantNavItems : centralNavItems;
 
-export function AppSidebar() {
+    // Personalizar el logo según el contexto
+    const logoText = isTenant ? 'Panel Inquilino' : 'Panel Central';
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -36,7 +25,16 @@ export function AppSidebar() {
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
                             <Link href="/dashboard" prefetch>
-                                <AppLogo />
+                                <div
+                                    className="flex aspect-square size-8 items-center justify-center rounded-md text-sidebar-primary-foreground"
+                                    style={{ backgroundColor: isTenant ? '#2563eb' : 'var(--sidebar-primary)' }}
+                                >
+                                    <AppLogo />
+                                </div>
+                                <div className="ml-1 grid flex-1 text-left text-sm">
+                                    <span className="mb-0.5 truncate leading-tight font-semibold">{logoText}</span>
+                                    <span className="truncate text-xs text-muted-foreground">{auth.user.name}</span>
+                                </div>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -44,7 +42,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={navItems} />
             </SidebarContent>
 
             <SidebarFooter>
