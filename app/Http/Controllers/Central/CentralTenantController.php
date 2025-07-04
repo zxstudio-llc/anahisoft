@@ -17,9 +17,18 @@ use Spatie\Permission\Models\Permission;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
+use App\Events\StatusTenant;
+use App\Http\Services\Tenant\ValidateDocument;
 
 class CentralTenantController extends Controller
 {
+    protected ValidateDocument $validateDocument;
+
+    public function __construct()
+    {
+        $this->validateDocument = new ValidateDocument();
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -177,9 +186,6 @@ class CentralTenantController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -187,6 +193,7 @@ class CentralTenantController extends Controller
             'admin_name' => ['required', 'string', 'max:255'],
             'admin_email' => ['required', 'string', 'email', 'max:255'],
             'admin_password' => ['required', Password::defaults()],
+            'ruc' => ['required', 'string', 'size:13', 'unique:tenants,data->ruc'],
             'id' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9-]+$/', 'unique:tenants,id'],
             'domain' => ['nullable', 'string', 'max:255', 'unique:domains,domain'],
             'subscription_plan_id' => ['nullable', 'exists:subscription_plans,id'],
@@ -194,6 +201,8 @@ class CentralTenantController extends Controller
             'id.regex' => 'El ID solo puede contener letras minúsculas, números y guiones.',
             'id.unique' => 'Este ID de inquilino ya está en uso.',
             'domain.unique' => 'Este dominio ya está en uso.',
+            'ruc.unique' => 'Este RUC ya está registrado en el sistema.',
+            'ruc.size' => 'El RUC debe tener exactamente 13 dígitos.',
         ]);
 
         if ($validator->fails()) {
@@ -205,6 +214,15 @@ class CentralTenantController extends Controller
             }
 
             return back()->withErrors($validator)->withInput();
+        }
+
+        // Validar RUC
+        $rucValidation = $this->validateDocument->validate_ruc($request->ruc);
+        if (!$rucValidation['success']) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => ['ruc' => $rucValidation['message']]
+            ], 422);
         }
 
         try {
@@ -226,17 +244,15 @@ class CentralTenantController extends Controller
             }
 
             if (empty($domain)) {
-                $domain = $id . '.ejemplo.com';
+                $domain = $id . '.' . config('tenancy.central_domains')[0];
 
                 // Verificar si el dominio ya existe y añadir un sufijo numérico si es necesario
                 $counter = 1;
                 while (Domain::where('domain', $domain)->exists()) {
-                    $domain = $id . '-' . $counter . '.ejemplo.com';
+                    $domain = $id . '-' . $counter . '.' . config('tenancy.central_domains')[0];
                     $counter++;
                 }
             }
-
-            \Log::info('Iniciando creación de tenant', ['id' => $id, 'domain' => $domain]);
 
             // Crear el tenant (esto creará la base de datos)
             $tenant = Tenant::create([
@@ -244,24 +260,30 @@ class CentralTenantController extends Controller
                 'data' => [
                     'company_name' => $request->company_name,
                     'admin_email' => $request->admin_email,
+                    'ruc' => $request->ruc,
+                    'business_name' => $rucValidation['data']['businessName'],
+                    'trade_name' => $rucValidation['data']['tradeName'],
+                    'status' => $rucValidation['data']['status'],
+                    'condition' => $rucValidation['data']['condition'],
+                    'address' => $rucValidation['data']['address'],
+                    'department' => $rucValidation['data']['department'],
+                    'province' => $rucValidation['data']['province'],
+                    'district' => $rucValidation['data']['district'],
+                    'registration_date' => $rucValidation['data']['registrationDate'],
                 ],
                 'subscription_plan_id' => $request->subscription_plan_id,
-                'trial_ends_at' => now()->addDays(30), // 30 días de prueba por defecto
+                'trial_ends_at' => now()->addDays(4), // 30 días de prueba por defecto
                 'is_active' => true,
                 'subscription_active' => true, // Durante el periodo de prueba
             ]);
-
-            \Log::info('Tenant creado', ['tenant' => $tenant]);
 
             // Crear el dominio para el tenant
             $tenant->domains()->create([
                 'domain' => $domain,
             ]);
-            
-            \Log::info('Dominio creado', ['domain' => $domain]);
 
             // Inicializar la base de datos del tenant para configurar roles y usuarios
-            $tenant->run(function () use ($tenant, $request) {
+            $tenant->run(function () use ($tenant, $request, $rucValidation) {
                 DB::beginTransaction();
                 try {
                     // Configurar roles y permisos
@@ -279,9 +301,19 @@ class CentralTenantController extends Controller
                     $user->assignRole('admin');
 
                     // Crear configuración de la empresa
-                    Settings::create([
+                    \App\Models\Tenant\Settings::create([
                         'company_name' => $request->company_name,
                         'company_email' => $request->admin_email,
+                        'ruc' => $request->ruc,
+                        'business_name' => $rucValidation['data']['businessName'],
+                        'trade_name' => $rucValidation['data']['tradeName'],
+                        'status' => $rucValidation['data']['status'],
+                        'condition' => $rucValidation['data']['condition'],
+                        'address' => $rucValidation['data']['address'],
+                        'department' => $rucValidation['data']['department'],
+                        'province' => $rucValidation['data']['province'],
+                        'district' => $rucValidation['data']['district'],
+                        'registration_date' => $rucValidation['data']['registrationDate'],
                     ]);
 
                     // Inicializar el contador de uso de facturas
@@ -300,6 +332,12 @@ class CentralTenantController extends Controller
                     throw $e;
                 }
             });
+
+            // Emitir evento de cambio de estado
+            $message = $tenant->is_active 
+                ? ($tenant->subscription_active ? 'Su suscripción ha sido activada.' : 'Su cuenta está activa pero sin suscripción.') 
+                : 'Su cuenta ha sido desactivada.';
+            event(new StatusTenant($tenant->id, $tenant->is_active, $message));
 
             return response()->json([
                 'success' => true,
@@ -326,6 +364,7 @@ class CentralTenantController extends Controller
             ], 500);
         }
     }
+
     /**
      * Configurar roles y permisos básicos
      */
@@ -408,22 +447,6 @@ class CentralTenantController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
@@ -435,17 +458,12 @@ class CentralTenantController extends Controller
         ]);
 
         if ($validator->fails()) {
-            if ($request->wantsJson()) {
-                return response()->json([
-                    'message' => 'Error de validación',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-    
-            return back()->withErrors($validator)->withInput();
+            return back()->withErrors($validator);
         }
 
         try {
+            DB::beginTransaction();
+
             // Buscar el inquilino
             $tenant = Tenant::findOrFail($id);
 
@@ -466,13 +484,26 @@ class CentralTenantController extends Controller
                     'domain' => $request->domain,
                 ]);
             }
-            
 
-            return redirect()->route('admin.tenants.index')
-                ->with('success', 'Inquilino actualizado correctamente');
+            // Actualizar la configuración de la empresa en el tenant
+            $tenant->run(function () use ($request) {
+                $settings = Settings::first();
+                if ($settings) {
+                    $settings->company_name = $request->company_name;
+                    $settings->save();
+                } else {
+                    Settings::create([
+                        'company_name' => $request->company_name,
+                    ]);
+                }
+            });
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Inquilino actualizado correctamente');
+
         } catch (\Exception $e) {
-            return redirect()->route('admin.tenants.index')
-            ->with('error', 'Error al actualizar el inquilino: ' . $e->getMessage());
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Error al actualizar el inquilino: ' . $e->getMessage()]);
         }
     }
 
@@ -515,7 +546,7 @@ class CentralTenantController extends Controller
                 ->with('error', 'No se encontró el usuario administrador');
         }
 
-        return Inertia::render('app/tenants/reset-admin-Credentials', [
+        return Inertia::render('app/tenants/reset-admin-credentials', [
             'tenant' => [
                 'id' => $tenant->id,
                 'company_name' => $tenant->data['company_name'] ?? 'Inquilino ' . $tenant->id,
@@ -678,6 +709,12 @@ class CentralTenantController extends Controller
                     }
                 });
             }
+
+            // Emitir evento de cambio de estado
+            $message = $tenant->is_active 
+                ? ($tenant->subscription_active ? 'Su suscripción ha sido activada.' : 'Su cuenta está activa pero sin suscripción.') 
+                : 'Su cuenta ha sido desactivada.';
+            event(new StatusTenant($tenant->id, $tenant->is_active, $message));
 
             DB::commit();
 

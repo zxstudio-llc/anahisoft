@@ -39,7 +39,7 @@ class CategoryController extends Controller
         $perPage = $request->input('per_page', 10);
         $categories = $query->withCount('products')->paginate($perPage)->withQueryString();
         
-        return Inertia::render('Tenant/Categories/Index', [
+        return Inertia::render('customer/categories/index', [
             'categories' => $categories,
             'filters' => [
                 'search' => $request->search,
@@ -56,7 +56,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Tenant/Categories/Create');
+        return Inertia::render('customer/categories/create');
     }
 
     /**
@@ -94,7 +94,7 @@ class CategoryController extends Controller
     {
         $category->loadCount('products');
         
-        return Inertia::render('Tenant/Categories/Show', [
+        return Inertia::render('customer/categories/show', [
             'category' => $category,
         ]);
     }
@@ -104,7 +104,7 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        return Inertia::render('Tenant/Categories/Edit', [
+        return Inertia::render('customer/categories/edit', [
             'category' => $category,
         ]);
     }

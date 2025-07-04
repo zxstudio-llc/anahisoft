@@ -21,22 +21,23 @@ use App\Http\Controllers\Central\PaymentController;
 use App\Http\Controllers\Settings\SiteSettingsController;
 use App\Http\Controllers\Settings\ThemesController;
 use App\Http\Controllers\Settings\FooterController;
-
+use Illuminate\Support\Facades\Broadcast;
 
 
 foreach (config('tenancy.central_domains') as $domain) {
     Route::domain($domain)->group(function () {
-        // your actual routes
+        Broadcast::routes();
         Route::get('/', function () {
             return Inertia::render('www/index');
         })->name('home');
 
-        Route::middleware(['auth', 'verified'])->group(function () {
+        Route::group(['prefix' => 'admin'], function () {
+            Route::middleware(['auth', 'verified'])->group(function () {
+                Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-            Route::prefix('admin')->group(function () {
-                Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+                Route::prefix('')->name('admin.')->group(function () {
                
-                Route::prefix('roles')->name('admin.roles.')->group(function () {
+                Route::prefix('roles')->name('roles.')->group(function () {
                     Route::get('/', [RoleController::class, 'index'])->name('index');
                     Route::get('/create', [RoleController::class, 'create'])->name('create');
                     Route::post('/', [RoleController::class, 'store'])->name('store');
@@ -44,7 +45,7 @@ foreach (config('tenancy.central_domains') as $domain) {
                     Route::put('/{role}', [RoleController::class, 'update'])->name('update');
                     Route::delete('/{role}', [RoleController::class, 'destroy'])->name('destroy');
                 });
-                Route::prefix('users')->name('admin.users.')->middleware('can:manage_users')->group(function () {
+                Route::prefix('users')->name('users.')->middleware('can:manage_users')->group(function () {
                     Route::get('/', [UserController::class, 'index'])->name('index');
                     Route::get('/create', [UserController::class, 'create'])->name('create');
                     Route::post('/', [UserController::class, 'store'])->name('store');
@@ -52,9 +53,9 @@ foreach (config('tenancy.central_domains') as $domain) {
                     Route::put('/{user}', [UserController::class, 'update'])->name('update');
                 });
                 
-                Route::resource('seo', \App\Http\Controllers\Web\SeoController::class)->names('admin.seo');
+                Route::resource('seo', \App\Http\Controllers\Web\SeoController::class)->names('seo');
             
-                Route::prefix('pages')->name('admin.pages.')->group(function () {
+                Route::prefix('pages')->name('pages.')->group(function () {
                     Route::get('/', [PageController::class, 'index'])->name('index');
                     Route::get('/create', [PageController::class, 'create'])->name('create');
                     Route::post('/', [PageController::class, 'store'])->name('store');
@@ -65,7 +66,7 @@ foreach (config('tenancy.central_domains') as $domain) {
                     });
                 });
             
-                Route::prefix('news')->name('admin.news.')->group(function () {
+                Route::prefix('news')->name('news.')->group(function () {
                     Route::get('/', [NewsController::class, 'index'])->name('index');
                     Route::get('/create', [NewsController::class, 'create'])->name('create');
                     Route::post('/', [NewsController::class, 'store'])->name('store');
@@ -76,7 +77,7 @@ foreach (config('tenancy.central_domains') as $domain) {
                     });
                 });
             
-                Route::prefix('banners')->name('admin.banners.')->group(function () {
+                Route::prefix('banners')->name('banners.')->group(function () {
                     Route::get('/', [BannerController::class, 'index'])->name('index');
                     Route::get('/create', [BannerController::class, 'create'])->name('create');
                     Route::post('/', [BannerController::class, 'store'])->name('store');
@@ -87,7 +88,7 @@ foreach (config('tenancy.central_domains') as $domain) {
                     });
                 });
             
-                Route::prefix('menus')->name('admin.menus.')->group(function () {
+                Route::prefix('menus')->name('menus.')->group(function () {
                     Route::get('/', [MenuController::class, 'index'])->name('index');
                     Route::get('/create', [MenuController::class, 'create'])->name('create');
                     Route::post('/', [MenuController::class, 'store'])->name('store');
@@ -100,7 +101,7 @@ foreach (config('tenancy.central_domains') as $domain) {
                     });
                 });
             
-                Route::prefix('media')->name('admin.media.')->group(function () {
+                Route::prefix('media')->name('media.')->group(function () {
                     Route::get('/', [MediaController::class, 'index'])->name('index');
                     Route::post('/', [MediaController::class, 'store'])->name('store');
                     Route::put('/{media}', [MediaController::class, 'update'])->name('update');
@@ -109,7 +110,7 @@ foreach (config('tenancy.central_domains') as $domain) {
                     Route::delete('/{media}/force-delete', [MediaController::class, 'forceDelete'])->name('forceDelete');
                 });
             
-                Route::prefix('menus')->name('admin.menu-items.')->group(function () {
+                Route::prefix('menus')->name('menu-items.')->group(function () {
                     Route::prefix('/{menu}')->group(function () {
                         Route::get('/items', [MenuItemController::class, 'index'])->name('index');
                         Route::post('/items', [MenuItemController::class, 'store'])->name('store');
@@ -120,7 +121,7 @@ foreach (config('tenancy.central_domains') as $domain) {
                     });
                 });
             
-                Route::prefix('menu-items')->name('admin.menu-items.')->group(function () {
+                Route::prefix('menu-items')->name('menu-items.')->group(function () {
                     Route::match(['put', 'patch'], '/{menuItem}', [MenuItemController::class, 'update'])->name('update');
                     Route::delete('/{menuItem}', [MenuItemController::class, 'destroy'])->name('destroy');
                 });
@@ -128,17 +129,17 @@ foreach (config('tenancy.central_domains') as $domain) {
                 Route::resource('testimonials', \App\Http\Controllers\Web\TestimonialController::class);
                 Route::patch('/testimonials/{testimonial}/toggle', [TestimonialController::class, 'toggle'])->name('testimonials.toggle');
             
-                Route::prefix('analytics')->name('admin.analytics.')->group(function () {
+                Route::prefix('analytics')->name('analytics.')->group(function () {
                     Route::get('/', [AnalyticsController::class, 'index'])->name('index');
                     Route::put('/seo-report', [AnalyticsController::class, 'seoReport'])->name('seo-report');
                 });
                 
-                Route::prefix('settings')->name('admin.settings.')->group(function () {
+                Route::prefix('settings')->name('settings.')->group(function () {
                     Route::get('/', [SiteSettingsController::class, 'edit'])->name('edit');
                     Route::post('/', [SiteSettingsController::class, 'update'])->name('update');
                 });
             
-                Route::prefix('themes')->name('admin.themes.')->group(function () {
+                Route::prefix('themes')->name('themes.')->group(function () {
                     Route::get('/', [ThemesController::class, 'index'])->name('index');
                     Route::get('/create', [ThemesController::class, 'create'])->name('create');
                     Route::post('/', [ThemesController::class, 'store'])->name('store');
@@ -147,7 +148,7 @@ foreach (config('tenancy.central_domains') as $domain) {
                     Route::post('/{theme}/activate', [ThemesController::class, 'activate'])->name('activate');
                 });
             
-                Route::prefix('footers')->name('admin.footers.')->group(function () {
+                Route::prefix('footers')->name('footers.')->group(function () {
                     Route::get('/manage', [FooterController::class, 'index'])->name('manage');
                     Route::post('/{footer}', [FooterController::class, 'update'])->name('update');
                     
@@ -159,7 +160,7 @@ foreach (config('tenancy.central_domains') as $domain) {
                     Route::put('/{menuItem}/toggle', [FooterController::class, 'toggleMenuItem'])->name('toggle');
                 });
             
-                Route::prefix('tenants')->name('admin.tenants.')->group(function () {
+                Route::prefix('tenants')->name('tenants.')->group(function () {
                     Route::get('/', [CentralTenantController::class, 'index'])->name('index');
                     Route::get('/create', [CentralTenantController::class, 'create'])->name('create');
                     Route::post('/', [CentralTenantController::class, 'store'])->name('store');
@@ -188,16 +189,18 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::post('/tenants/{tenant}/toggle-active', [PaymentController::class, 'toggleActive'])->name('tenants.toggle-active');
 
             // Rutas para planes de suscripción
-            Route::prefix('subscription-plans')->name('subscription-plans.')->group(function () {
-                Route::get('/', [SubscriptionPlanController::class, 'index'])->name('index');
-                Route::get('/create', [SubscriptionPlanController::class, 'create'])->name('create');
-                Route::post('/', [SubscriptionPlanController::class, 'store'])->name('store');
-                Route::get('/{plan}/edit', [SubscriptionPlanController::class, 'edit'])->name('edit');
-                Route::put('/{plan}', [SubscriptionPlanController::class, 'update'])->name('update');
-                Route::delete('/{plan}', [SubscriptionPlanController::class, 'destroy'])->name('destroy');
-            });
+            // Route::prefix('subscription-plans')->name('subscription-plans.')->group(function () {
+            //     Route::get('/', [SubscriptionPlanController::class, 'index'])->name('index');
+            //     Route::get('/create', [SubscriptionPlanController::class, 'create'])->name('create');
+            //     Route::post('/', [SubscriptionPlanController::class, 'store'])->name('store');
+            //     Route::get('/{plan}/edit', [SubscriptionPlanController::class, 'edit'])->name('edit');
+            //     Route::put('/{plan}', [SubscriptionPlanController::class, 'update'])->name('update');
+            //     Route::delete('/{plan}', [SubscriptionPlanController::class, 'destroy'])->name('destroy');
+            // });
             });
         });
+
+    });
 
         Route::get('/customer/register', [TenantController::class, 'showRegistrationForm'])->name('tenant.register');
 Route::post('/customer/register', [TenantController::class, 'register']);

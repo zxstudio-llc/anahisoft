@@ -60,7 +60,7 @@ class SubscriptionController extends Controller
         // Obtener estadísticas de uso
         $usageStatistics = $this->invoiceService->getUsageStatistics();
         
-        return Inertia::render('Tenant/Subscription/Index', [
+        return Inertia::render('customer/subscription/Index', [
             'currentPlan' => $currentPlan,
             'availablePlans' => $availablePlans,
             'subscriptionStatus' => [
@@ -101,7 +101,7 @@ class SubscriptionController extends Controller
         // Obtener estadísticas de uso
         $usageStatistics = $this->invoiceService->getUsageStatistics();
         
-        return Inertia::render('Tenant/Subscription/Upgrade', [
+        return Inertia::render('customer/subscription/Upgrade', [
             'currentPlan' => $currentPlan,
             'availablePlans' => $availablePlans,
             'subscriptionStatus' => [
@@ -188,7 +188,7 @@ class SubscriptionController extends Controller
                 ->get();
         });
             
-        return Inertia::render('Tenant/Subscription/Expired', [
+        return Inertia::render('customer/subscription/Expired', [
             'availablePlans' => $availablePlans
         ]);
     }

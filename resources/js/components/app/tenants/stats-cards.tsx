@@ -1,4 +1,4 @@
-import { TenantStats } from "@/common/interfaces/tenant.interface";
+import { TenantStats } from "@/common/interfaces/tenants.interface";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface TenantStatsCardsProps {

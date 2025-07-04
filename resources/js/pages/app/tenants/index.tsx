@@ -1,3 +1,4 @@
+
 import { TenantsIndexProps } from '@/common/interfaces/tenants.interface';
 import { TenantStatsCards } from '@/components/app/tenants/stats-cards';
 import { TenantsTable } from '@/components/app/tenants/tenants-table';

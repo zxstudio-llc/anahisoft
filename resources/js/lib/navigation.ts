@@ -5,7 +5,7 @@ import {BookOpen, Building, Cog, CreditCard, Folder, Key, LayoutDashboard, Packa
 export const centralNavItems: NavItem[] = [
     {
         title: 'Panel',
-        href: '/admin',
+        href: '/admin/dashboard',
         icon: LayoutGrid,
     },
     {
@@ -103,37 +103,37 @@ export const tenantNavItems: NavItem[] = [
     },
     {
         title: 'Clientes',
-        href: '/clients',
+        href: '/customer/clients',
         icon: Users,
     },
     {
         title: 'Productos',
-        href: '/products',
+        href: '/customer/products',
         icon: Package,
     },
     {
         title: 'Ventas',
-        href: '/sales',
+        href: '/customer/sales',
         icon: ShoppingCart,
     },
     {
         title: 'Categorías',
-        href: '/categories',
+        href: '/customer/categories',
         icon: Folder,
     },
-    {
-        title: 'API Keys',
-        href: '/api-keys',
-        icon: Key,
-    },
+    // {
+    //     title: 'API Keys',
+    //     href: '/customer/api-keys',
+    //     icon: Key,
+    // },
     {
         title: 'Facturación',
-        href: '/invoices',
+        href: '/customer/invoices',
         icon: Receipt,
     },
     {
         title: 'Suscripción',
-        href: '/subscription',
+        href: '/customer/subscription',
         icon: CreditCard,
     },
     {

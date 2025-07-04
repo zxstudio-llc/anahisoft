@@ -31,7 +31,7 @@ class ClientController extends Controller
             ],
         ];
 
-        return Inertia::render('Tenant/Clients/Index', [
+        return Inertia::render('customer/clients/index', [
             'clients' => $clients
         ]);
     }
@@ -41,7 +41,7 @@ class ClientController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Tenant/Clients/Create');
+        return Inertia::render('customer/clients/create');
     }
 
     /**
@@ -78,7 +78,7 @@ class ClientController extends Controller
             'created_at' => now()->subDays(5)->format('Y-m-d'),
         ];
 
-        return Inertia::render('Tenant/Clients/Show', [
+        return Inertia::render('customer/clients/show', [
             'client' => $client
         ]);
     }
@@ -98,7 +98,7 @@ class ClientController extends Controller
             'city' => 'Ciudad',
         ];
 
-        return Inertia::render('Tenant/Clients/Edit', [
+        return Inertia::render('customer/clients/edit', [
             'client' => $client
         ]);
     }

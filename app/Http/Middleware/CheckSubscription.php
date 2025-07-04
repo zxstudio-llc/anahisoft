@@ -16,7 +16,7 @@ class CheckSubscription
     public function handle(Request $request, Closure $next): Response
     {
         // Solo aplicar en contexto de tenant
-        if (!$request->isTenant()) {
+        if (tenant()) {
             return $next($request);
         }
 

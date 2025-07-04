@@ -1,11 +1,16 @@
-import { Tenant, EditTenantFormData } from '@/common/interfaces/tenants.interface';
+import { EditTenantFormData, Tenant } from '@/common/interfaces/tenants.interface';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { router } from '@inertiajs/react';
-import { Building2, PencilIcon, User } from 'lucide-react';
+import { router, usePage } from '@inertiajs/react';
+import { Building2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+
+type PageProps = {
+    errors: Record<string, string>;
+};
 
 interface EditTenantModalProps {
     tenant: Tenant;
@@ -14,12 +19,13 @@ interface EditTenantModalProps {
 }
 
 export function EditTenantModal({ tenant, isOpen, onClose }: EditTenantModalProps) {
+    const { errors: validationErrors } = usePage<PageProps>().props;
     const [formData, setFormData] = useState<EditTenantFormData>({
         id: tenant.id,
         domain: tenant.primary_domain || '',
         company_name: tenant.company_name || '',
     });
-    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [errors, setErrors] = useState<Record<string, string>>(validationErrors);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Actualizar el formulario cuando cambia el inquilino
@@ -32,6 +38,11 @@ export function EditTenantModal({ tenant, isOpen, onClose }: EditTenantModalProp
             });
         }
     }, [tenant]);
+
+    // Actualizar errores cuando cambian los errores de validación
+    useEffect(() => {
+        setErrors(validationErrors);
+    }, [validationErrors]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -49,71 +60,26 @@ export function EditTenantModal({ tenant, isOpen, onClose }: EditTenantModalProp
         }
     };
 
-    // const handleSubmit = async (e: React.FormEvent) => {
-    //     e.preventDefault();
-    //     setIsSubmitting(true);
-    //     setErrors({});
-
-    //     try {
-    //         // Enviar solicitud al servidor
-    //         const response = await fetch(`/tenants/${tenant.id}`, {
-    //             method: 'PUT',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-    //                 Accept: 'application/json',
-    //             },
-    //             body: JSON.stringify(formData),
-    //         });
-
-    //         const data = await response.json();
-
-    //         if (!response.ok) {
-    //             // Manejar errores de validación
-    //             if (response.status === 422 && data.errors) {
-    //                 setErrors(data.errors);
-    //             } else {
-    //                 alert(data.message || 'Error al actualizar el inquilino');
-    //             }
-    //             setIsSubmitting(false);
-    //             return;
-    //         }
-
-    //         // Éxito
-    //         onClose();
-
-    //         // Recargar la página para mostrar los cambios
-    //         router.reload();
-    //     } catch (error) {
-    //         console.error('Error al actualizar inquilino:', error);
-    //         alert('Error al procesar la solicitud');
-    //         setIsSubmitting(false);
-    //     }
-    // };
-
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-        setErrors({});
 
-        try {
-            router.put(
-                route('admin.tenants.update', { tenant: tenant.id }),
-                { ...formData },
-                {
-                    onSuccess: () => {
-                        onClose();
-                        router.reload();
-                    },
+        router.put(
+            route('admin.tenants.update', tenant.id),
+            formData,
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    toast.success('Inquilino actualizado correctamente');
+                    onClose();
+                },
                 onError: (errors) => {
+                    toast.error('Error al actualizar el inquilino');
                     setErrors(errors);
-                    setIsSubmitting(false);
-                }
-            });
-        } catch (error) {
-            console.error('Error al actualizar inquilino:', error);
-            setIsSubmitting(false);
-        }
+                },
+                onFinish: () => setIsSubmitting(false),
+            }
+        );
     };
 
     return (
@@ -124,6 +90,12 @@ export function EditTenantModal({ tenant, isOpen, onClose }: EditTenantModalProp
                     <DialogDescription>Modifique la información del inquilino.</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    {errors.error && (
+                        <div className="rounded-md bg-red-50 p-4 dark:bg-red-900/10">
+                            <p className="text-sm text-red-500 dark:text-red-400">{errors.error}</p>
+                        </div>
+                    )}
+
                     {/* Sección de información del inquilino */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 border-b pb-2">
@@ -148,18 +120,12 @@ export function EditTenantModal({ tenant, isOpen, onClose }: EditTenantModalProp
                             {errors.company_name && <p className="text-sm text-red-500">{errors.company_name}</p>}
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label htmlFor="id" className="text-sm font-medium">
                                     ID del Inquilino
                                 </Label>
-                                <Input
-                                    id="id"
-                                    name="id"
-                                    value={formData.id}
-                                    disabled={true}
-                                    className="w-full bg-neutral-50 dark:bg-neutral-800"
-                                />
+                                <Input id="id" name="id" value={formData.id} disabled={true} className="w-full bg-neutral-50 dark:bg-neutral-800" />
                                 <p className="text-xs text-muted-foreground">El ID no se puede modificar.</p>
                             </div>
 

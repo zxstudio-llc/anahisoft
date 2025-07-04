@@ -33,7 +33,7 @@ class ProductController extends Controller
             ],
         ];
 
-        return Inertia::render('app/tenants/products/index', [
+        return Inertia::render('customer/products/index', [
             'products' => $products
         ]);
     }
@@ -43,7 +43,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return Inertia::render('app/tenants/products/create');
+        return Inertia::render('customer/products/create');
     }
 
     /**
@@ -82,7 +82,7 @@ class ProductController extends Controller
             'created_at' => now()->subDays(10)->format('Y-m-d'),
         ];
 
-        return Inertia::render('app/tenants/products/show', [
+        return Inertia::render('customer/products/show', [
             'product' => $product
         ]);
     }
@@ -102,7 +102,7 @@ class ProductController extends Controller
             'description' => 'Descripción detallada del producto ejemplo ' . $id,
         ];
 
-        return Inertia::render('app/tenants/products/edit', [
+        return Inertia::render('customer/products/edit', [
             'product' => $product
         ]);
     }

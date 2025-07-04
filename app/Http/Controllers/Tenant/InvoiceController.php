@@ -25,7 +25,7 @@ class InvoiceController extends Controller
     public function index(Request $request)
     {
         // Implementar la lógica para mostrar la lista de facturas
-        return Inertia::render('Tenant/Invoices/Index', [
+        return Inertia::render('customer/invoices/index', [
             'invoices' => [],
             'filters' => [
                 'search' => $request->input('search', ''),
@@ -42,7 +42,7 @@ class InvoiceController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Tenant/Invoices/Create', [
+        return Inertia::render('customer/invoices/create', [
             'clients' => [],
             'products' => []
         ]);
@@ -62,7 +62,7 @@ class InvoiceController extends Controller
      */
     public function show($id)
     {
-        return Inertia::render('Tenant/Invoices/Show', [
+        return Inertia::render('customer/invoices/show', [
             'invoice' => []
         ]);
     }
@@ -72,7 +72,7 @@ class InvoiceController extends Controller
      */
     public function edit($id)
     {
-        return Inertia::render('Tenant/Invoices/Edit', [
+        return Inertia::render('customer/invoices/edit', [
             'invoice' => [],
             'clients' => [],
             'products' => []

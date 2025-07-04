@@ -15,8 +15,7 @@ class ValidateDocument
      */
     public function __construct()
     {
-        $this->token = env('APIS_PERU_TOKEN', '');
-        $this->base_url = env('APIS_PERU_BASE_URL', 'https://dniruc.apisperu.com/api/v1');
+        $this->base_url = env('BASE_URL_RUC');
     }
 
     /**

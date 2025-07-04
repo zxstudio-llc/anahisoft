@@ -20,6 +20,7 @@ export interface Tenant {
         id: string;
         name: string;
     };
+    subscription_status: 'active' | 'trial' | 'expired' | 'inactive';
 }
 
 export interface TenantStats {
@@ -39,12 +40,21 @@ export interface CreateTenantFormData {
     id: string;
     domain: string;
     company_name: string;
+    ruc: string;
     admin_name: string;
     admin_email: string;
     admin_password: string;
+    status?: string;
+    condition?: string;
+    address?: string;
+    department?: string;
+    province?: string;
+    district?: string;
+    registration_date?: string;
+    trade_name?: string;
 }
 
-export interface EditTenantFormData {
+export interface EditTenantFormData extends Record<string, string> {
     id: string;
     domain: string;
     company_name: string;

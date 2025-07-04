@@ -33,6 +33,7 @@ class Server extends BaseServer
     {
         return [
             Tenants\TenantSchema::class,
+            Sris\SriSchema::class,
         ];
     }
 }

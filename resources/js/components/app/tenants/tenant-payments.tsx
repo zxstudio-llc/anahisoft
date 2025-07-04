@@ -12,7 +12,7 @@ import { DollarSign, Plus } from 'lucide-react';
 import axios, { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import { Payment, PaymentFormData, PaymentFormErrors, PaymentMethod } from '@/common/interfaces/payment.interface';
-import { SubscriptionPlan } from '@/common/interfaces/tenants.interface';
+import { SubscriptionPlan } from '@/common/interfaces/subscription-plan.interface';
 import { Tenant } from '@/common/interfaces/tenants.interface';
 
 interface TenantPaymentsProps {
@@ -97,7 +97,7 @@ export default function TenantPayments({ tenant, payments = [], subscriptionPlan
 
     const toggleTenantActive = async () => {
         try {
-            const response = await axios.post(route('tenants.toggle-active', tenant.id));
+            const response = await axios.post(route('admin.tenants.toggle-active', tenant.id));
             toast.success(response.data.message);
             router.reload();
         } catch {
@@ -323,4 +323,4 @@ export default function TenantPayments({ tenant, payments = [], subscriptionPlan
             </CardContent>
         </Card>
     );
-}
+} 

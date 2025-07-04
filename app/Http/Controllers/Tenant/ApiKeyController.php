@@ -26,7 +26,7 @@ class ApiKeyController extends Controller
             ];
         });
 
-        return Inertia::render('Tenant/ApiKeys/Index', [
+        return Inertia::render('customer/api-keys/index', [
             'tokens' => $tokens,
         ]);
     }
